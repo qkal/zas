@@ -3,6 +3,15 @@
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
 
+/* Neutralize `dark:` utilities used by vendored shadcn-svelte components.
+   Tailwind v4's default `dark:` is `@media (prefers-color-scheme: dark)`,
+   which would activate those utilities from OS-level dark mode even though
+   this app is single-theme cream (no dark tokens exist). Redefining the
+   variant to `.dark *` means `dark:` only applies when an ancestor has the
+   `.dark` class — which nothing in this app ever sets — so `dark:` classes
+   compile but stay permanently inert. */
+@custom-variant dark (&:is(.dark *));
+
 :root {
   /* Warm cream Bliss palette */
   --background: oklch(0.985 0.005 85);
