@@ -1,6 +1,6 @@
-# Testing the Bliss SvelteKit app
+# Testing the Bliss Next.js app
 
-Client-only SvelteKit chat UI (pure runes, `ssr: false`, `prerender: true`). No backend, no auth. Dev data is seeded in-memory in `src/routes/+page.svelte`.
+Client-rendered Next.js 16 chat UI (React 19, `"use client"` page). No backend, no auth. Dev data is seeded in-memory in `app/page.tsx`.
 
 ## Devin Secrets Needed
 
@@ -8,45 +8,42 @@ None. The app has no network calls, no auth, no secrets.
 
 ## Start the app
 
-```
+```bash
 pnpm install
-pnpm dev   # http://localhost:5173
+pnpm dev   # http://localhost:3000
 ```
 
-Vite 6 + `@tailwindcss/vite`. First start re-optimizes deps (~2s). `pnpm build` uses `@sveltejs/adapter-auto` and will warn on local — that's expected; pick `adapter-static` or `adapter-node` when actually deploying.
+Next.js 16 + Tailwind CSS 4 via `@tailwindcss/postcss`. First start compiles the app (~2s). `pnpm build` produces a production build; `pnpm start` serves it.
 
 ## Lint / typecheck
 
-```
-pnpm lint         # oxlint (primary, fast)
-pnpm lint:svelte  # svelte-check (types + .svelte diagnostics)
-pnpm lint:all     # both
-pnpm check        # alias for svelte-check
+```bash
+pnpm lint   # eslint (the only lint script defined)
 ```
 
-Warnings in vendored `src/lib/components/ui/**` (shadcn-svelte) are expected — don't try to "fix" them in this repo.
+Warnings in vendored `components/ui/**` (shadcn/ui) are expected — don't try to "fix" them in this repo.
 
-## Smoke test checklist (run when changing anything in `src/routes/+page.svelte`, `src/lib/components/bliss/**`, `src/lib/theme.svelte.ts`, `src/app.html`, or `src/app.css`)
+## Smoke test checklist (run when changing anything in `app/page.tsx`, `components/bliss/**`, `components/theme-provider.tsx`, `app/layout.tsx`, or `app/globals.css`)
 
 These three are the highest-risk surfaces that any migration or refactor can break silently:
 
-1. **Chat send lifecycle** — open a session, type any text, press **Enter** (not Shift+Enter). A user bubble should appear, "Thinking… **Ns**" should tick upwards once per second (proves `$effect`/`setInterval` reactivity), then after ~3s a `TaskCard` + assistant reply should appear. If the counter is stuck at `0s` or never appears, the `$effect` dependency tracking is broken.
-2. **Theme persistence** — click the moon/sun icon in the chat header → full UI should recolor. Press **Ctrl+Shift+R** → page must repaint directly in the saved theme with no light/dark flash. A flash means the inline anti-FOUC `<script>` in `src/app.html` is broken (it reads `localStorage.getItem('bliss-theme')` and sets `html.classList.add('dark')` before hydration).
-3. **Sidebar collapse** — click the toggle at sidebar top-right. Width should animate 248 → ~30px in ~300ms with labels fading out and the chat column re-padding. The animation is driven by the `data-collapsed` attribute + CSS width transition — if it snaps instantly, the attribute binding is wrong.
+1. **Chat send lifecycle** — open a session, type any text, press **Enter** (not Shift+Enter). A user bubble should appear, "Thinking… **Ns**" should tick upwards once per second (proves `useEffect`/`setInterval` reactivity in `app/page.tsx`), then after ~3s a `TaskCard` + assistant reply should appear. If the counter is stuck at `0s` or never appears, the state update logic is broken.
+2. **Theme persistence** — click the moon/sun icon in the chat header → full UI should recolor. Press **Ctrl+Shift+R** → page must repaint directly in the saved theme with no light/dark flash. Theme is managed by `next-themes` (`ThemeProvider` in `app/layout.tsx`), which injects an inline script to set the `class` attribute on `<html>` before hydration.
+3. **Sidebar collapse** — click the toggle at sidebar top-right. Width should animate 248 → 60px in ~300ms with labels fading out and the chat column re-padding. The animation is driven by the `data-collapsed` attribute on `<aside>` in `components/bliss/sidebar.tsx` + CSS `transition-[width]` — if it snaps instantly, the attribute binding is wrong.
 
-Seed session titles ("Premium landing page plan", "Review onboarding copy") reset on every reload because state is purely in-memory — only the `bliss-theme` localStorage key persists.
+Seed session titles ("Premium landing page plan", "Review onboarding copy") reset on every reload because state is purely in-memory — only the `next-themes` localStorage key persists.
 
 ## Chrome launch workaround (only if `google-chrome <url>` silently does nothing)
 
 The `google-chrome` binary in `$PATH` is a wrapper that POSTs to a running Chrome's CDP at `localhost:29229`. If no Chrome is running, it exits with code 7 and nothing appears. Launch a real Chrome with CDP enabled:
 
-```
+```bash
 nohup /opt/.devin/chrome/chrome/linux-137.0.7118.2/chrome-linux64/chrome \
   --user-data-dir=/home/ubuntu/.browser_data_dir \
   --remote-debugging-port=29229 \
   --no-first-run --no-default-browser-check \
   --start-maximized \
-  http://localhost:5173/ >/tmp/chrome.log 2>&1 &
+  http://localhost:3000/ >/tmp/chrome.log 2>&1 &
 ```
 
 The exact Chrome version path may change over time — check `ls /opt/.devin/chrome/chrome/` for the current build.
@@ -57,9 +54,9 @@ The exact Chrome version path may change over time — check `ls /opt/.devin/chr
 
 ## What lives where (for editing)
 
-- Chat lifecycle logic, session mutations, scroll detection: `src/routes/+page.svelte`
-- Chat components: `src/lib/components/bliss/*.svelte` (not the `ui/` folder — that's vendored shadcn-svelte and unused by the chat today)
-- Theme store + `$effect` that toggles `html.dark`: `src/lib/theme.svelte.ts`
-- Anti-FOUC inline script + `<head>` metadata: `src/app.html`
-- Design tokens (oklch cream palette, bubble/chip colors, custom scrollbar, Tailwind v4 `@theme inline`): `src/app.css`
-- oxlint config: `.oxlintrc.json`
+- Chat lifecycle logic, session mutations, scroll detection: `app/page.tsx`
+- Chat components: `components/bliss/*.tsx` (sidebar collapse lives in `components/bliss/sidebar.tsx`)
+- Theme provider (wraps `next-themes`): `components/theme-provider.tsx`
+- Root layout, fonts, `<ThemeProvider>` setup: `app/layout.tsx`
+- Design tokens (oklch cream palette, bubble/chip colors, custom scrollbar, Tailwind v4 `@theme inline`): `app/globals.css`
+- Vendored UI primitives (shadcn/ui — generally don't edit): `components/ui/`
