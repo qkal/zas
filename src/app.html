@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="%sveltekit.assets%/icon.svg" />
+    <link rel="icon" media="(prefers-color-scheme: light)" href="%sveltekit.assets%/icon-light-32x32.png" />
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="%sveltekit.assets%/icon-dark-32x32.png" />
+    <link rel="apple-touch-icon" href="%sveltekit.assets%/apple-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bliss — an autonomous coding agent chat interface" />
+    <title>Bliss</title>
+    <script>
+      // Anti-FOUC: apply the persisted/system theme before Svelte hydrates.
+      (function () {
+        try {
+          var stored = localStorage.getItem('bliss-theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var resolved = stored === 'dark' || (stored !== 'light' && prefersDark) ? 'dark' : 'light'
+          if (resolved === 'dark') document.documentElement.classList.add('dark')
+        } catch (_) {}
+      })()
+    </script>
+    %sveltekit.head%
+  </head>
+  <body class="bg-background font-sans antialiased">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>
