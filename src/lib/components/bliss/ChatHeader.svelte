@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { ChevronDown, Minimize2, Moon, Sun } from '@lucide/svelte'
-  import { theme } from '$lib/theme.svelte'
+  import { ChevronDown, Minimize2 } from '@lucide/svelte'
 
   type Props = {
     title?: string
   }
 
   let { title = 'Bliss' }: Props = $props()
-
-  const isDark = $derived(theme.resolved === 'dark')
 </script>
 
 <header class="flex h-14 w-full items-center justify-between px-5">
@@ -24,18 +21,6 @@
   </button>
 
   <div class="flex items-center gap-0.5">
-    <button
-      type="button"
-      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      onclick={() => theme.toggle()}
-      class="rounded-md p-1.5 text-foreground/55 transition-all duration-200 ease-out hover:bg-foreground/5 hover:text-foreground active:scale-95"
-    >
-      {#if isDark}
-        <Sun class="h-4 w-4" strokeWidth={1.75} />
-      {:else}
-        <Moon class="h-4 w-4" strokeWidth={1.75} />
-      {/if}
-    </button>
     <button
       type="button"
       aria-label="Minimize"

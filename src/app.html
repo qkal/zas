@@ -9,17 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Bliss — an autonomous coding agent chat interface" />
     <title>Bliss</title>
-    <script>
-      // Anti-FOUC: apply the persisted/system theme before Svelte hydrates.
-      (function () {
-        try {
-          var stored = localStorage.getItem('bliss-theme')
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          var resolved = stored === 'dark' || (stored !== 'light' && prefersDark) ? 'dark' : 'light'
-          if (resolved === 'dark') document.documentElement.classList.add('dark')
-        } catch (_) {}
-      })()
-    </script>
     %sveltekit.head%
   </head>
   <body class="bg-background font-sans antialiased">
