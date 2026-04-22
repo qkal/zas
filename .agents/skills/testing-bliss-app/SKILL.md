@@ -13,7 +13,7 @@ pnpm install
 pnpm dev   # http://localhost:3000
 ```
 
-Next.js 16 + Tailwind CSS 4 via `@tailwindcss/postcss`. First start compiles the app (~2s). `pnpm build` produces a production build; `pnpm start` serves it.
+Next.js 16 + Tailwind CSS 4 via `@tailwindcss/postcss` (v4.2.0). First start compiles the app (~2s). `pnpm build` produces a production build; `pnpm start` serves it.
 
 ## Lint / typecheck
 
@@ -28,7 +28,7 @@ Warnings in vendored `components/ui/**` (shadcn/ui) are expected — don't try t
 These three are the highest-risk surfaces that any migration or refactor can break silently:
 
 1. **Chat send lifecycle** — open a session, type any text, press **Enter** (not Shift+Enter). A user bubble should appear, "Thinking… **Ns**" should tick upwards once per second (proves `useEffect`/`setInterval` reactivity in `app/page.tsx`), then after ~3s a `TaskCard` + assistant reply should appear. If the counter is stuck at `0s` or never appears, the state update logic is broken.
-2. **Theme persistence** — click the moon/sun icon in the chat header → full UI should recolor. Press **Ctrl+Shift+R** → page must repaint directly in the saved theme with no light/dark flash. The `ThemeProvider` wrapper component is defined in `components/theme-provider.tsx` and instantiated in `app/layout.tsx` to inject `next-themes`' inline script that sets the `class` attribute on `<html>` before hydration, ensuring theme persistence with no flash on reload.
+2. **Theme persistence** — click the moon/sun icon in the chat header → full UI should recolor. Press **Ctrl+Shift+R** → page must repaint directly in the saved theme with no light/dark flash. The `ThemeProvider` wrapper component is defined in `components/theme-provider.tsx` and instantiated in `app/layout.tsx` with `suppressHydrationWarning`. The `next-themes` library handles setting the `class` attribute on `<html>` before hydration, ensuring theme persistence with no flash on reload.
 3. **Sidebar collapse** — click the toggle at sidebar top-right. Width should animate 248 → 60px in ~300ms with labels fading out and the chat column re-padding. The animation is driven by the `data-collapsed` attribute on `<aside>` in `components/bliss/sidebar.tsx` + CSS `transition-[width]` — if it snaps instantly, the attribute binding is wrong.
 
 Seed session titles ("Premium landing page plan", "Review onboarding copy") reset on every reload because state is purely in-memory — only the `next-themes` localStorage key persists.
