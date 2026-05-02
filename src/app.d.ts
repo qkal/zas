@@ -7,6 +7,21 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  interface Window {
+    electronAPI?: {
+      window: {
+        minimize: () => void
+        maximize: () => void
+        close: () => void
+        isMaximized: () => Promise<boolean>
+        onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void
+      }
+      app: {
+        quit: () => void
+      }
+    }
+  }
 }
 
 export {}
