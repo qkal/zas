@@ -30,7 +30,7 @@
     "lint:all": "pnpm lint && pnpm lint:svelte",
     "prepare": "svelte-kit sync",
     "electron:dev": "concurrently \"vite dev\" \"wait-on http://localhost:5173 && electron electron/dist/main.js\"",
-    "electron:build": "vite build && tsc -p electron && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "electron:build": "vite build && tsc -p electron && electron-builder",
     "electron:preview": "pnpm electron:build && electron-builder --win --publish never && start dist-electron/Bliss.exe"
   },
   "dependencies": {
@@ -55,7 +55,6 @@
     "@types/node": "^22.10.1",
     "bits-ui": "^2.14.4",
     "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
     "electron": "^41.5.0",
     "electron-builder": "^26.8.1",
     "electron-store": "^11.0.2",
@@ -67,7 +66,6 @@
     "oxlint": "^1.14.0",
     "paneforge": "^1.0.2",
     "postcss": "^8.4",
-    "sharp": "^0.34.5",
     "svelte": "^5.2.10",
     "svelte-check": "^4.1.1",
     "svelte-sonner": "^1.0.7",
